@@ -7,7 +7,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 
-class Severity(str, StrEnum):
+class Severity(StrEnum):
     low = "low"
     medium = "medium"
     high = "high"
