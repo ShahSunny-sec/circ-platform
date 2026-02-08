@@ -1,92 +1,107 @@
-# Cloud Incident Response & Event Correlation Platform (CIRC) — MVP
+![CI](https://github.com/ShahSunny-sec/circ-platform/actions/workflows/ci.yml/badge.svg)
 
-Local-first incident correlation for AWS telemetry.
+# Cloud Incident Response & Event Correlation Platform
 
-Ingest **CloudTrail** + **VPC Flow** logs → normalize into a canonical event model → extract/enrich IOCs → apply **Sigma-like YAML detections** → correlate alerts into **incidents** → export **Parquet/JSON** + triage in **Streamlit**.
+A Python-based platform for **detecting, correlating, and prioritizing cloud security incidents**
+using **AWS CloudTrail** and **VPC Flow Logs**.
 
----
-
-## What you get
-
-- **Batch pipeline**: ingest → normalize → enrich → detect → correlate → write
-- **Portable rules**: YAML detections with severity, MITRE, and triage recommendations
-- **Correlation**: time-window clustering + shared entity/IOC overlap + severity escalation controls
-- **Investigation-ready artifacts**
-  - `events.parquet`, `alerts.parquet`, `incidents.parquet`
-  - `incidents.json` (UI-friendly)
-  - `dead_letter.jsonl` (bad records)
-  - `run_summary.json` (counts + stage timings)
-- **Streamlit UI**: incident queue + drill-down + exports
+This project simulates how a **Security Operations Center (SOC)** ingests raw cloud telemetry,
+applies detection rules, correlates alerts into incidents, and enriches them with
+severity and MITRE-style context.
 
 ---
 
-## Architecture (workflow)
+## Why this project exists
 
-1. **Ingest**: scan an input directory for supported sources  
-2. **Normalize**: convert raw records into a canonical event shape  
-3. **Enrich**: extract IOCs + attach investigation links (VT / AbuseIPDB)  
-4. **Detect**: apply YAML rules to produce alerts  
-5. **Correlate**: cluster alerts into incidents (window + overlap)  
-6. **Write**: append-only artifacts per run directory  
+Modern cloud environments generate massive volumes of security-relevant events.
+This project demonstrates how to:
 
-> Add: `docs/images/architecture.png` (see “README Visuals Checklist” below)
+- Normalize heterogeneous cloud logs
+- Detect suspicious activity using rule-based logic
+- Correlate multiple alerts into higher-level incidents
+- Assign severity and contextual metadata
+- Present results in a simple UI for analysts
+
+This is an **educational MVP**, designed to showcase backend logic, data modeling,
+and SOC-style workflows — not a production SIEM.
 
 ---
 
-## Quickstart
+## Key features
 
-### 1) Install
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+- CloudTrail & VPC Flow log normalization
+- Rule-based detection engine
+- Alert → Incident correlation
+- Severity scoring and escalation
+- MITRE-style tactic/technique mapping
+- Streamlit-based analyst UI
+- Unit tests and CI with GitHub Actions
+
+---
+
+## Project structure
+
+```text
+src/
+  circ_platform/        # Core correlation and detection logic
+rules/                  # Detection rules
+data/samples/            # Sample input logs for demos/tests
+ui/                     # Streamlit UI
+tests/                  # Unit tests
+docs/                   # Architecture notes & screenshots
+.github/workflows/       # CI configuration
+
+Installation
+Core (library only)
 pip install -e .
-2) Configure
-cp config/config.example.yaml config/config.yaml
-export CIRC_CONFIG_PATH=config/config.yaml  # optional
-3) Run the pipeline
-circ run --input data --output output
-4) Launch the UI
-streamlit run ui/app.py
-To open a specific run directory:
 
-export CIRC_OUTPUT_RUN_DIR=output/<run-id>
-streamlit run ui/app.py
-Demo data
-Sample inputs live in data/samples/ (CloudTrail JSONL + VPC Flow CSV).
+Development (tests + linting)
+pip install -e ".[dev]"
 
-circ run --input data/samples --output output
-streamlit run ui/app.py
-Rules
-Rules live in rules/*.yaml and include: id, name, severity, log_source, detection logic, MITRE (optional), triage recommendations.
+UI (Streamlit dashboard)
+pip install -e ".[ui]"
 
-Quality
+Everything
+pip install -e ".[dev,ui,parquet]"
+
+Running the platform
+CLI pipeline (example)
+circ run \
+  --input data/samples \
+  --output output/
+
+Streamlit UI
+streamlit run ui/app.py
+
+Testing
+
+Run the full test suite:
+
 pytest -q
+
+
+Lint the codebase:
+
 ruff check .
-ruff format .
+
 Screenshots
-Place images in docs/images/:
 
-01-incident-queue.png — Incident queue with filters
+Screenshots of the UI and incident views are available in docs/images/.
 
-02-incident-detail.png — Incident overview + rationale
+Security notes
 
-03-alerts-drilldown.png — Alerts + raw event drill-down
+No secrets are committed to this repository
 
-04-ioc-links.png — IOC investigation links (VT/AbuseIPDB)
+Runtime configuration should be provided via environment variables
 
+.env.example documents expected configuration keys
 
----
+Disclaimer
 
-## How to Run + Verify
+This project is for learning and demonstration purposes only.
+It is not intended for production use.
 
-```bash
-# 1) install
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
+Author
 
-# 2) generate a run (uses included samples)
-circ run --input data/samples --output output
-
-# 3) open UI
-streamlit run ui/app.py
+Sunny Shah
+GitHub: https://github.com/ShahSunny-sec
