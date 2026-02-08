@@ -8,7 +8,6 @@ from typing import Any
 import pandas as pd
 import streamlit as st
 
-
 DEFAULT_OUTPUT_ROOT = Path("output")
 
 

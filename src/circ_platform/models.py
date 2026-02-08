@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
 
-class Severity(str, Enum):
+class Severity(str, StrEnum):
     low = "low"
     medium = "medium"
     high = "high"

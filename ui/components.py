@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from html import escape
-from typing import Iterable
 
 import streamlit as st
 

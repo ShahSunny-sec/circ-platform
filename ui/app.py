@@ -1,15 +1,16 @@
 from __future__ import annotations
-from pathlib import Path
+
 import json
 import os
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
 import streamlit as st
-
 from components import chips, external_ioc_links, link_buttons, severity_pill
-from data import DEFAULT_OUTPUT_ROOT, list_runs, load_incidents, load_run_summary, severity_rank
 from style import inject_css
+
+from data import DEFAULT_OUTPUT_ROOT, list_runs, load_incidents, load_run_summary, severity_rank
 
 
 def _parse_ts(ts: str) -> pd.Timestamp:
@@ -74,7 +75,9 @@ output_root = Path(os.environ.get("CIRC_OUTPUT_ROOT", str(DEFAULT_OUTPUT_ROOT)))
 runs = list_runs(output_root)
 
 if not runs:
-    st.sidebar.warning("No runs found. Generate data first: `circ run --input data --output output`")
+    st.sidebar.warning(
+        "No runs found. Generate data first: `circ run --input data --output output`"
+    )
     st.title("CIRC Platform")
     st.info("Run the pipeline to create artifacts, then reload this page.")
     st.stop()
@@ -145,7 +148,10 @@ with left:
         ql = q.lower().strip()
         keep_ids = set()
         for inc in incidents:
-            if ql in str(inc.get("incident_id", "")).lower() or ql in str(inc.get("summary", "")).lower():
+            if (
+                ql in str(inc.get("incident_id", "")).lower()
+                or ql in str(inc.get("summary", "")).lower()
+            ):
                 keep_ids.add(inc.get("incident_id"))
                 continue
             for a in inc.get("alerts", [])[:50]:
@@ -154,7 +160,9 @@ with left:
                         str(a.get("rule_id", "")),
                         str(a.get("rule_name", "")),
                         " ".join(a.get("entities", []) or []),
-                        " ".join([f"{x.get('type')}:{x.get('value')}" for x in (a.get("iocs") or [])]),
+                        " ".join(
+                            [f"{x.get('type')}:{x.get('value')}" for x in (a.get("iocs") or [])]
+                        ),
                     ]
                 ).lower()
                 if ql in hay:
