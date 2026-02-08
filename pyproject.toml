@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "circ-platform"
+version = "0.1.0"
+description = "Cloud Incident Response & Event Correlation Platform (CloudTrail + VPC Flow) - MVP"
+requires-python = ">=3.11"
+dependencies = [
+  "pandas>=2.2.0",
+  "pyarrow>=15.0.0",
+  "pydantic>=2.6.0",
+  "PyYAML>=6.0.1",
+  "streamlit>=1.31.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "ruff>=0.6.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+circ = "circ_platform.cli:main"

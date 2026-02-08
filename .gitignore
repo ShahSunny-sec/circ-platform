@@ -1,0 +1,26 @@
+# Virtual environments
+.venv/
+venv/
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Test / lint caches
+.pytest_cache/
+.ruff_cache/
+
+# Packaging
+*.egg-info/
+dist/
+build/
+
+# Runtime outputs
+output/
+dead_letter.jsonl
+
+# OS / editor junk
+.history/
+.DS_Store
+Thumbs.db
