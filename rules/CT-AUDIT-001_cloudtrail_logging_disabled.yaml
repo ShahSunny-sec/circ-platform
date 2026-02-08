@@ -1,0 +1,20 @@
+id: CT-AUDIT-001
+name: CloudTrail Logging Disabled
+description: >
+  Fires whenever StopLogging or DeleteTrail is recorded.
+severity: critical
+logic: OR
+mitre:
+  - technique_id: T1562.002
+    technique_name: Disable Cloud Security Controls
+    tactic: defense_evasion
+conditions:
+  - field: eventName
+    operator: in
+    value: ["StopLogging", "DeleteTrail"]
+recommendations:
+  - "Re-enable CloudTrail logging immediately and suspend the actor credentials."
+  - "Audit 24h of activity prior to the stop/delete action; notify leadership."
+tags: ["audit", "defense_evasion"]
+references:
+  - "https://attack.mitre.org/techniques/T1562/002/"

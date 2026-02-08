@@ -1,0 +1,32 @@
+id: VPC-NET-001
+name: Anomalous Data Exfiltration via Non-Standard Port
+description: >
+  Outbound ACCEPTed flow to a non-standard egress port with bytes > 10MB.
+severity: high
+logic: AND
+mitre:
+  - technique_id: T1048
+    technique_name: Exfiltration Over Alternative Protocol
+    tactic: exfiltration
+conditions:
+  - field: source
+    operator: eq
+    value: vpc_flow
+  - field: direction
+    operator: eq
+    value: egress
+  - field: action
+    operator: eq
+    value: ACCEPT
+  - field: dst_port
+    operator: not_in
+    value: [443, 53, 123, 22, 587, 993]
+  - field: bytes
+    operator: gt
+    value: 10485760
+recommendations:
+  - "Deny traffic to dst IP/port at SG/NACL and preserve ENI/instance evidence."
+  - "Validate whether destination belongs to known SaaS before escalation."
+tags: ["network", "exfiltration"]
+references:
+  - "https://attack.mitre.org/techniques/T1048/"

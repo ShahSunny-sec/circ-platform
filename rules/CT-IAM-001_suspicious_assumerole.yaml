@@ -1,0 +1,30 @@
+id: CT-IAM-001
+name: Suspicious IAM Role Assumption
+description: >
+  Detects AssumeRole calls targeting high-privilege roles (admin/root/poweruser)
+  from non-service identities and non-automation usernames.
+severity: high
+logic: AND
+mitre:
+  - technique_id: T1078
+    technique_name: Valid Accounts
+    tactic: initial_access
+conditions:
+  - field: eventName
+    operator: eq
+    value: AssumeRole
+  - field: requestParameters.roleArn
+    operator: contains_any
+    value: ["admin", "root", "poweruser"]
+    case_insensitive: true
+  - field: userIdentity.type
+    operator: not_in
+    value: ["AWSService", "ServiceLinkedRole"]
+  - field: userIdentity.userName
+    operator: not_startswith
+    value: "automation-"
+recommendations:
+  - "Revoke the assumed-role session (STS) and investigate the source identity."
+  - "Check IAM policy attachments for privilege escalation paths."
+  - "If source IP is not a known egress IP, treat as compromise indicator and escalate."
+tags: ["iam", "initial_access", "privilege"]

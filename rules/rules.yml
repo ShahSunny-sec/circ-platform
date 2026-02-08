@@ -1,0 +1,99 @@
+# Sigma-like subset:
+# - logsource: cloudtrail | vpcflow
+# - match: ALL conditions must match (simple comparisons)
+# ops: eq, contains, regex, in, gt, lt
+# Fields are normalized columns from events_enriched.parquet
+
+rules:
+  - id: CT001
+    title: CloudTrail - CreateAccessKey
+    logsource: cloudtrail
+    severity: high
+    mitre:
+      tactics: ["TA0003"]          # Persistence
+      techniques: ["T1098"]        # Account Manipulation (generic mapping)
+    recommendations:
+      - "Rotate and disable the newly created access key; verify owner intent."
+      - "Review IAM user activity and enforce MFA if not enabled."
+    match:
+      - field: action
+        op: eq
+        value: "CreateAccessKey"
+      - field: outcome
+        op: eq
+        value: "success"
+
+  - id: CT002
+    title: CloudTrail - AttachUserPolicy / PutUserPolicy
+    logsource: cloudtrail
+    severity: critical
+    mitre:
+      tactics: ["TA0004"]          # Privilege Escalation
+      techniques: ["T1098"]
+    recommendations:
+      - "Revert unauthorized policy attachment; review IAM change history."
+      - "Lock down IAM permissions; require approvals for policy changes."
+    match:
+      - field: action
+        op: in
+        value: ["AttachUserPolicy", "PutUserPolicy", "AttachRolePolicy", "PutRolePolicy"]
+      - field: outcome
+        op: eq
+        value: "success"
+
+  - id: CT003
+    title: CloudTrail - StopLogging / DeleteTrail (Defense Evasion)
+    logsource: cloudtrail
+    severity: critical
+    mitre:
+      tactics: ["TA0005"]          # Defense Evasion
+      techniques: ["T1562"]        # Impair Defenses (generic mapping)
+    recommendations:
+      - "Immediately re-enable logging and preserve audit evidence."
+      - "Identify actor and revoke suspicious sessions/keys."
+    match:
+      - field: action
+        op: in
+        value: ["StopLogging", "DeleteTrail", "UpdateTrail"]
+      - field: outcome
+        op: eq
+        value: "success"
+
+  - id: VF001
+    title: VPC Flow - REJECT to SSH/RDP from Public IP
+    logsource: vpcflow
+    severity: medium
+    mitre:
+      tactics: ["TA0001"]          # Initial Access
+      techniques: ["T1190"]        # Exploit Public-Facing Application (proxy)
+    recommendations:
+      - "Block offending source IP at WAF/NACL/Security Group if repeated."
+      - "Confirm SSH/RDP exposure is required; restrict to VPN/bastion."
+    match:
+      - field: action
+        op: eq
+        value: "REJECT"
+      - field: dst_port
+        op: in
+        value: [22, 3389]
+      - field: src_ip_is_public
+        op: eq
+        value: true
+
+  - id: VF002
+    title: VPC Flow - Large Egress to Public IP (Possible Exfil)
+    logsource: vpcflow
+    severity: high
+    mitre:
+      tactics: ["TA0010"]          # Exfiltration
+      techniques: ["T1041"]        # Exfiltration Over C2 Channel (proxy)
+    recommendations:
+      - "Inspect host generating egress; validate destination and data type."
+      - "Consider isolating instance and rotating credentials if suspicious."
+    match:
+      - field: bytes
+        op: gt
+        value: 500000
+      - field: dst_ip_is_public
+        op: eq
+        value: true

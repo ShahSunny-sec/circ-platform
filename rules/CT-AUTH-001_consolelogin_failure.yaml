@@ -1,0 +1,23 @@
+id: CT-AUTH-001
+name: Brute-Force ConsoleLogin Failure
+description: >
+  Fires on any ConsoleLogin event with a failure result. Correlation will group repeated failures.
+severity: medium
+logic: AND
+mitre:
+  - technique_id: T1110
+    technique_name: Brute Force
+    tactic: initial_access
+conditions:
+  - field: eventName
+    operator: eq
+    value: ConsoleLogin
+  - field: responseElements.ConsoleLogin
+    operator: eq
+    value: Failure
+recommendations:
+  - "If repeated failures from same IP occur within window, block IP at NACL/WAF."
+  - "Notify targeted user out-of-band; if success follows, force password reset."
+tags: ["auth", "initial_access", "bruteforce"]
+references:
+  - "https://attack.mitre.org/techniques/T1110/"
